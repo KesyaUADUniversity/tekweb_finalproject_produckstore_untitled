@@ -1,3 +1,38 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Efek salju jatuh */
+@keyframes snow {
+  0% { transform: translateY(-10px) rotate(0deg); opacity: 0; }
+  10% { opacity: 1; }
+  100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+}
+
+.snowflake {
+  position: absolute;
+  color: #fff;
+  font-size: 1.8rem;
+  top: -20px;
+  animation: snow 5s linear infinite;
+  opacity: 0;
+}
+
+.snowflake:nth-child(2) { left: 15%; animation-delay: 0.5s; }
+.snowflake:nth-child(3) { left: 30%; animation-delay: 1s; }
+.snowflake:nth-child(4) { left: 45%; animation-delay: 1.5s; }
+.snowflake:nth-child(5) { left: 60%; animation-delay: 2s; }
+.snowflake:nth-child(6) { left: 75%; animation-delay: 2.5s; }
+.snowflake:nth-child(7) { left: 90%; animation-delay: 3s; }
+
+/* Efek hover input */
+input:focus {
+  transform: translateY(-2px);
+  transition: all 0.2s ease;
+}
+
+/* Efek tombol */
+button:hover {
+  transform: scale(1.02);
+  transition: all 0.2s ease;
+}

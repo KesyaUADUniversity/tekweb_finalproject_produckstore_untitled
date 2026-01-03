@@ -1,48 +1,41 @@
 // src/pages/UserPage.jsx
 import { useState } from "react";
-import Toast from "@/ui/Toast";
 import Navbar from "@/components/public/Navbar";
 import ProductCard from "@/components/public/ProductCard";
 import Footer from "@/components/public/Footer";
 import { useProducts } from "@/hooks/useProducts";
 
-export default function UserPage() {
+export default function UserPage({ cart, setCart }) {
   const { products } = useProducts();
-  const [toast, setToast] = useState({ message: "", isVisible: false });
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const showToast = (message) => {
-    setToast({ message, isVisible: true });
-    setTimeout(() => {
-      setToast({ message: "", isVisible: false });
-    }, 3000);
-  };
+  const filteredProducts = products.filter(product =>
+    product.name && product.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <Navbar 
-        onLogin={() => showToast("Silakan login untuk melanjutkan!")}
-        onCart={() => showToast("Keranjang Anda saat ini kosong.")}
-      />
+      <Navbar cart={cart} onSearch={(term) => setSearchTerm(term)} />
+      
       <main className="container mx-auto px-4 py-8 flex-1">
         <h1 className="text-3xl font-bold mb-6">Produk Kami</h1>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {products.map(product => (
-            <ProductCard 
-              key={product.id} 
-              product={product} 
-              onBeli={(name) => showToast(`Berhasil menambahkan ${name} ke keranjang!`)} 
-            />
-          ))}
+          {filteredProducts.length > 0 ? (
+            filteredProducts.map(product => (
+              <ProductCard 
+                key={product.id} 
+                product={product} 
+                cart={cart}
+                setCart={setCart}
+              />
+            ))
+          ) : (
+            <p className="col-span-3 text-center">Produk tidak ditemukan.</p>
+          )}
         </div>
       </main>
+      
       <Footer />
-
-      {/* Toast Notification */}
-      <Toast 
-        message={toast.message} 
-        isVisible={toast.isVisible} 
-        onClose={() => setToast({ message: "", isVisible: false })} 
-      />
     </div>
   );
 }

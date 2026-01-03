@@ -1,32 +1,32 @@
 // src/components/admin/DataTable.jsx
-export default function DataTable({ products, onRemove }) {
+export default function DataTable({ products }) {
   return (
-    <div className="p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-xl font-bold mb-4">Daftar Produk</h2>
-      
-      <div className="space-y-3">
-        {products.map(product => (
-          <div 
-            key={product.id} 
-            className="flex items-center justify-between p-3 border border-gray-200 rounded hover:bg-gray-50"
-          >
-            {/* Info Produk */}
-            <div className="flex-1">
-              <span className="font-mono text-sm text-gray-500 mr-2">#{product.id}</span>
-              <span className="font-medium text-gray-800">{product.name}</span>
-              <span className="ml-2 text-gray-600">Rp {product.price.toLocaleString()}</span>
-            </div>
-
-            {/* Tombol Hapus — di samping kanan */}
-            <button
-              onClick={() => onRemove(product.id)}
-              className="px-3 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700 transition"
-            >
-              Hapus
-            </button>
-          </div>
-        ))}
-      </div>
+    <div className="bg-white rounded shadow overflow-hidden">
+      <table className="min-w-full divide-y divide-gray-200">
+        <thead className="bg-gray-50">
+          <tr>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Harga</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+          </tr>
+        </thead>
+        <tbody className="bg-white divide-y divide-gray-200">
+          {products.map(product => (
+            <tr key={product.id}>
+              <td className="px-6 py-4 whitespace-nowrap">{product.name}</td>
+              <td className="px-6 py-4 whitespace-nowrap">Rp {product.price.toLocaleString()}</td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <button 
+                  onClick={() => alert(`Produk ${product.name} dihapus!`)}
+                  className="text-red-600 hover:text-red-900"
+                >
+                  Hapus
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
