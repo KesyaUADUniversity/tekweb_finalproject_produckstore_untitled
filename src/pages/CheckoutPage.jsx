@@ -1,5 +1,5 @@
 // src/pages/CheckoutPage.jsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/ui/card";
 import { Link } from "react-router-dom";
@@ -8,11 +8,17 @@ export default function CheckoutPage({ cart }) {
   const [selectedAddress, setSelectedAddress] = useState("");
   const [selectedPayment, setSelectedPayment] = useState("");
 
-  const addresses = [
+  const [addresses, setAddresses] = useState([
     "Jl. Merdeka No. 10, Jakarta Pusat",
     "Jl. Sudirman No. 25, Bandung",
     "Jl. Diponegoro No. 5, Yogyakarta"
-  ];
+  ]);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newAddress, setNewAddress] = useState("");
+
+  
+  const [isStockValid, setIsStockValid] = useState(true);
 
   const paymentMethods = [
     { id: "cod", name: "Bayar di Tempat (COD)" },
@@ -22,11 +28,34 @@ export default function CheckoutPage({ cart }) {
 
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
+  
+  useEffect(() => {
+    const isValid = cart.every(item => item.quantity <= item.stock);
+    setIsStockValid(isValid);
+  }, [cart]);
+
+  const handleAddAddress = () => {
+    if (!newAddress.trim()) {
+      alert("Alamat tidak boleh kosong!");
+      return;
+    }
+    setAddresses([...addresses, newAddress.trim()]);
+    setNewAddress("");
+    setIsModalOpen(false);
+    alert("Alamat baru berhasil ditambahkan!");
+  };
+
   const handleSubmit = () => {
     if (!selectedAddress || !selectedPayment) {
       alert("Harap pilih alamat dan metode pembayaran!");
       return;
     }
+
+    if (!isStockValid) {
+      alert("Maaf, jumlah produk melebihi stok tersedia.");
+      return;
+    }
+
     alert("Pesanan berhasil dikirim! Terima kasih.");
   };
 
@@ -38,6 +67,51 @@ export default function CheckoutPage({ cart }) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Kolom Kiri: Alamat & Metode Pembayaran */}
           <div>
+           
+            <Card className="mb-6 bg-white shadow-md">
+              <CardHeader>
+                <CardTitle className="text-lg font-bold">🛒 Konfirmasi Jumlah Beli</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {cart.map(item => (
+                  <div 
+                    key={item.id} 
+                    className={`flex justify-between items-center p-3 mb-2 rounded ${
+                      item.quantity > item.stock ? 'bg-red-50 border border-red-200' : 'bg-gray-50'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <img src={item.image} alt={item.name} className="w-10 h-10 object-cover rounded" />
+                      <div>
+                        <p className="font-medium">{item.name}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-xs text-gray-600">
+                            Qty: {item.quantity}
+                          </span>
+                          <span className={`text-xs px-2 py-0.5 rounded-full ${
+                            item.quantity > item.stock 
+                              ? 'bg-red-100 text-red-800 border border-red-300' 
+                              : 'bg-green-100 text-green-800 border border-green-300'
+                          }`}>
+                            Stok: {item.stock}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <span className="text-blue-600 font-bold">
+                      Rp {(item.price * item.quantity).toLocaleString()}
+                    </span>
+                  </div>
+                ))}
+
+                {!isStockValid && (
+                  <div className="mt-4 p-3 bg-red-100 border-l-4 border-red-500 text-red-700 rounded">
+                    ⚠️ Ada produk yang jumlahnya melebihi stok tersedia. Silakan kurangi jumlah di keranjang.
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
             {/* Alamat Pengiriman */}
             <Card className="mb-6">
               <CardHeader>
@@ -58,7 +132,11 @@ export default function CheckoutPage({ cart }) {
                       <label htmlFor={`addr-${index}`}>{addr}</label>
                     </div>
                   ))}
-                  <Button variant="outline" className="mt-3 w-full">
+                  <Button 
+                    variant="outline" 
+                    className="mt-3 w-full"
+                    onClick={() => setIsModalOpen(true)} 
+                  >
                     + Tambah Alamat Baru
                   </Button>
                 </div>
@@ -128,7 +206,8 @@ export default function CheckoutPage({ cart }) {
 
                 <Button 
                   onClick={handleSubmit}
-                  className="w-full mt-4 bg-green-600 hover:bg-green-700 text-white"
+                  disabled={!isStockValid}
+                  className={`w-full mt-4 ${isStockValid ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-400 cursor-not-allowed'} text-white`}
                 >
                   Konfirmasi Pesanan
                 </Button>
@@ -143,6 +222,36 @@ export default function CheckoutPage({ cart }) {
             <Link to="/cart">← Kembali ke Keranjang</Link>
           </Button>
         </div>
+
+        {/* Modal Tambah Alamat */}
+        {isModalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg p-6 w-full max-w-md">
+              <h3 className="text-lg font-bold mb-4">Tambah Alamat Baru</h3>
+              <textarea
+                value={newAddress}
+                onChange={(e) => setNewAddress(e.target.value)}
+                placeholder="Masukkan alamat lengkap (jalan, kota, provinsi, kode pos)..."
+                className="w-full px-3 py-2 border border-gray-300 rounded mb-4"
+                rows={4}
+              />
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsModalOpen(false)}
+                >
+                  Batal
+                </Button>
+                <Button
+                  onClick={handleAddAddress}
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                >
+                  Simpan
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

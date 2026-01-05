@@ -17,42 +17,48 @@ export const useProducts = () => {
       name: "Wireless Headphones",
       price: 299000,
       description: "High-quality sound with noise cancellation.",
-      image: product1Img 
+      image: product1Img,
+      stock: 100 // 
     },
     {
       id: 2,
       name: "Smart Watch",
       price: 899000,
       description: "Track your health and stay connected.",
-      image: product2Img
+      image: product2Img,
+      stock: 100
     },
     {
       id: 3,
       name: "Bluetooth Speaker",
       price: 159000,
       description: "Portable and powerful audio.",
-      image: product3Img
+      image: product3Img,
+      stock: 100 
     },
     {
       id: 4,
       name: "USB-C Fast Charger",
       price: 199000,
       description: "Supports 65W fast charging for laptops and phones.",
-      image: product4Img 
+      image: product4Img,
+      stock: 100 
     },
     {
       id: 5,
       name: "Power Bank 20.000mAh",
       price: 349000,
       description: "High-capacity portable charger with USB-C and dual USB ports. Perfect for travel.",
-      image: product5Img
+      image: product5Img,
+      stock: 100
     },
     {
       id: 6,
       name: "True Wireless Earbuds",
       price: 249000,
       description: "Sleek, lightweight earbuds with touch controls and 20-hour battery life with case.",
-      image: product6Img
+      image: product6Img,
+      stock: 100
     }
   ]);
 
