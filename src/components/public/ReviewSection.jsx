@@ -1,6 +1,6 @@
 // src/components/public/ReviewSection.jsx
 import { useState } from "react";
-import { Button } from "@/ui/button";
+import { Button } from "@/components/ui/button"; 
 
 export default function ReviewSection({ productId }) {
   const [reviewText, setReviewText] = useState("");
@@ -39,7 +39,7 @@ export default function ReviewSection({ productId }) {
   };
 
   return (
-    <div className="mt-8 p-6 border-2 border-blue-500 rounded-lg bg-white shadow-sm"> {/* ✅ Border biru tebal */}
+    <div className="mt-8 p-6 border-2 border-blue-500 rounded-lg bg-white shadow-sm">
       <h3 className="text-xl font-bold mb-4 flex items-center">
         <span className="text-yellow-500 mr-2">⭐</span> Ulasan Pelanggan
       </h3>
@@ -80,7 +80,7 @@ export default function ReviewSection({ productId }) {
         {reviews.map(review => (
           <div 
             key={review.id} 
-            className="p-4 border rounded-lg bg-gray-50 hover:bg-gray-100 transition border-blue-200" // ✅ Border biru muda
+            className="p-4 border rounded-lg bg-gray-50 hover:bg-gray-100 transition border-blue-200"
           >
             <div className="flex justify-between items-start">
               <div>
