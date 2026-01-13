@@ -1,10 +1,10 @@
 // src/components/public/ProductCard.jsx
-import { Card, CardContent, CardTitle } from "@/ui/card";
-import { Button } from "@/ui/button";
+import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 
 export default function ProductCard({ product, cart, setCart }) {
-  const handleAddToCart = () => {
+  const handleAddToCart = (e) => {
+    e.preventDefault(); // Cegah Link ter-trigger saat klik tombol
     const existingItem = cart.find(item => item.id === product.id);
     if (existingItem) {
       setCart(cart.map(item =>
@@ -13,31 +13,43 @@ export default function ProductCard({ product, cart, setCart }) {
     } else {
       setCart([...cart, { ...product, quantity: 1 }]);
     }
+    alert(`✅ ${product.name} ditambahkan ke keranjang!`);
   };
 
   return (
-    <Card className="hover:shadow-xl transition border-2 border-green-500">
-      <Link to={`/product/${product.id}`} className="block">
-        <div className="p-4 flex items-center justify-center">
-          <img 
-            src={product.image} 
-            alt={product.name} 
-            className="max-w-full max-h-40 object-contain"
-          />
+    <div className="border-2 border-green-500 rounded-lg hover:shadow-xl transition-shadow bg-white flex flex-col h-full">
+      {/* Area Klik untuk Detail Produk */}
+      <Link 
+        to={`/product/${product.id}`} 
+        className="flex-1 p-4 flex flex-col items-center text-center"
+      >
+        <img 
+          src={product.image} 
+          alt={product.name} 
+          className="max-w-full max-h-40 object-contain mb-3"
+        />
+        <h3 className="font-bold text-gray-800 line-clamp-2 mb-2">
+          {product.name}
+        </h3>
+        <p className="text-red-600 font-bold text-lg">
+          Rp {product.price.toLocaleString()}
+        </p>
+        <p className="text-sm text-gray-600 line-clamp-2 mt-2">
+          {product.description}
+        </p>
+        
+        {/* Opsional: Tambahkan rating seperti Amazon */}
+        <div className="flex items-center mt-2 text-yellow-500">
+          <span>★★★★☆</span>
+          <span className="text-xs text-gray-500 ml-1">(42)</span>
         </div>
-        <CardContent>
-          <CardTitle>{product.name}</CardTitle>
-          <p className="text-red-600 font-bold mt-2">Rp {product.price.toLocaleString()}</p>
-          <p className="text-sm mt-2 text-gray-600 line-clamp-2">
-            {product.description}
-          </p>
-        </CardContent>
       </Link>
 
+      {/* Tombol Aksi - Tetap di bawah */}
       <div className="px-4 pb-4 flex gap-2">
         <Button
           asChild
-          className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+          className="flex-1 bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium"
         >
           <Link to={`/product/${product.id}`}>Detail</Link>
         </Button>
@@ -46,11 +58,11 @@ export default function ProductCard({ product, cart, setCart }) {
           variant="outline"
           size="icon"
           onClick={handleAddToCart}
-          className="border-green-500 text-green-500 hover:bg-green-50"
+          className="border-green-500 text-green-500 hover:bg-green-50 w-10 h-10"
         >
           🛒
         </Button>
       </div>
-    </Card>
+    </div>
   );
 }

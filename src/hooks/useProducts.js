@@ -1,66 +1,60 @@
 // src/hooks/useProducts.js
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from "react";
 
 
-import product1Img from "@/assets/images/product1.jpg";
-import product2Img from "@/assets/images/product2.jpg";
-import product3Img from "@/assets/images/product3.jpg";
-import product4Img from "@/assets/images/usb-c.jpg";
-import product5Img from "@/assets/images/product5.jpg"; 
-import product6Img from "@/assets/images/product6.jpg";     
-
+const API_URL = "https://695e732d2556fd22f6787ecb.mockapi.io/api/v1/products";
 
 export const useProducts = () => {
-  const [products] = useState([
-    {
-      id: 1,
-      name: "Wireless Headphones",
-      price: 299000,
-      description: "High-quality sound with noise cancellation.",
-      image: product1Img,
-      stock: 100 // 
-    },
-    {
-      id: 2,
-      name: "Smart Watch",
-      price: 899000,
-      description: "Track your health and stay connected.",
-      image: product2Img,
-      stock: 100
-    },
-    {
-      id: 3,
-      name: "Bluetooth Speaker",
-      price: 159000,
-      description: "Portable and powerful audio.",
-      image: product3Img,
-      stock: 100 
-    },
-    {
-      id: 4,
-      name: "USB-C Fast Charger",
-      price: 199000,
-      description: "Supports 65W fast charging for laptops and phones.",
-      image: product4Img,
-      stock: 100 
-    },
-    {
-      id: 5,
-      name: "Power Bank 20.000mAh",
-      price: 349000,
-      description: "High-capacity portable charger with USB-C and dual USB ports. Perfect for travel.",
-      image: product5Img,
-      stock: 100
-    },
-    {
-      id: 6,
-      name: "True Wireless Earbuds",
-      price: 249000,
-      description: "Sleek, lightweight earbuds with touch controls and 20-hour battery life with case.",
-      image: product6Img,
-      stock: 100
-    }
-  ]);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  return { products };
+  const fetchProducts = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(API_URL);
+      if (!res.ok) throw new Error("Gagal mengambil data");
+      const data = await res.json();
+      setProducts(data);
+    } catch (err) {
+      setError(err.message);
+      console.error("Fetch products error:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Tambah produk
+  const addProduct = async (newProduct) => {
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newProduct),
+      });
+      if (!res.ok) throw new Error("Gagal menambah produk");
+      fetchProducts(); 
+    } catch (err) {
+      alert("Gagal menambah produk: " + err.message);
+    }
+  };
+
+  // Hapus produk
+  const deleteProduct = async (id) => {
+    try {
+      const res = await fetch(`${API_URL}/${id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("Gagal menghapus produk");
+      fetchProducts(); 
+    } catch (err) {
+      alert("Gagal menghapus produk: " + err.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
+
+  return { products, loading, error, addProduct, deleteProduct };
 };

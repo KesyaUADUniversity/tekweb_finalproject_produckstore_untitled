@@ -1,45 +1,52 @@
 // src/pages/RegisterPage.jsx
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate,Link } from "react-router-dom";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 
-export default function RegisterPage() {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-      {/* Background Blur */}
-      <div className="absolute inset-0 bg-white opacity-70"></div>
+export default function RegisterPage({ onRegister }) {
+  const [email, setEmail] = useState("");
+  const navigate = useNavigate();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (email.trim()) {
       
-      {/* Card Register */}
-      <div className="relative z-10 w-full max-w-md p-8 rounded-xl shadow-lg bg-white/90 backdrop-blur-sm">
-        <h1 className="text-3xl font-bold text-gray-800 mb-6">Create your account</h1>
-        
-        <input 
-          type="text" 
-          placeholder="Full Name" 
-          className="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-        />
-        
-        <input 
-          type="email" 
-          placeholder="Email" 
-          className="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-        />
-        
-        <input 
-          type="password" 
-          placeholder="Password" 
-          className="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-        />
-        
-        <button 
-          onClick={() => alert("Account created!")}
-          className="block w-full py-3 bg-pink-500 text-white text-center rounded-lg hover:bg-pink-600 transition"
-        >
-          SIGN UP
-        </button>
-        
-        <div className="mt-6 text-center text-sm text-gray-600">
-          Already have an account? <Link to="/login" className="text-pink-500 hover:underline">Log in.</Link>
-        </div>
-      </div>
+      onRegister(email);
+      navigate("/"); 
+    }
+  };
+
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-gray-50 p-4">
+      <Card className="w-full max-w-sm">
+        <CardHeader>
+          <CardTitle className="text-2xl">Daftar</CardTitle>
+          <CardDescription>Buat akun baru dengan email.</CardDescription>
+        </CardHeader>
+        <form onSubmit={handleSubmit}>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="contoh@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button type="submit" className="w-full">
+              Daftar
+            </Button>
+          </CardFooter>
+        </form>
+      </Card>
     </div>
   );
 }

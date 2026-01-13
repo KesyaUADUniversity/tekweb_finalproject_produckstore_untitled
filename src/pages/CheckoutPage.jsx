@@ -1,7 +1,7 @@
 // src/pages/CheckoutPage.jsx
 import { useState, useEffect } from "react";
-import { Button } from "@/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/ui/card";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 
 export default function CheckoutPage({ cart }) {
@@ -16,8 +16,6 @@ export default function CheckoutPage({ cart }) {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newAddress, setNewAddress] = useState("");
-
-  
   const [isStockValid, setIsStockValid] = useState(true);
 
   const paymentMethods = [
@@ -28,7 +26,6 @@ export default function CheckoutPage({ cart }) {
 
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  
   useEffect(() => {
     const isValid = cart.every(item => item.quantity <= item.stock);
     setIsStockValid(isValid);
@@ -65,12 +62,12 @@ export default function CheckoutPage({ cart }) {
         <h1 className="text-3xl font-bold mb-6 text-center">📦 Checkout</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Kolom Kiri: Alamat & Metode Pembayaran */}
+          {/* Kolom Kiri: Produk, Alamat & Pembayaran */}
           <div>
-           
+            {/* Produk yang Dibeli */}
             <Card className="mb-6 bg-white shadow-md">
               <CardHeader>
-                <CardTitle className="text-lg font-bold">🛒 Konfirmasi Jumlah Beli</CardTitle>
+                <CardTitle className="text-lg font-bold">🛒 Produk yang Dibeli</CardTitle>
               </CardHeader>
               <CardContent>
                 {cart.map(item => (
@@ -81,14 +78,18 @@ export default function CheckoutPage({ cart }) {
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <img src={item.image} alt={item.name} className="w-10 h-10 object-cover rounded" />
+                      <img 
+                        src={item.image} 
+                        alt={item.name} 
+                        className="w-10 h-10 object-cover rounded"
+                      />
                       <div>
-                        <p className="font-medium">{item.name}</p>
+                        <p className="font-medium text-gray-800">{item.name}</p>
                         <div className="flex items-center gap-2 mt-1">
                           <span className="text-xs text-gray-600">
                             Qty: {item.quantity}
                           </span>
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${
+                          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                             item.quantity > item.stock 
                               ? 'bg-red-100 text-red-800 border border-red-300' 
                               : 'bg-green-100 text-green-800 border border-green-300'
@@ -106,7 +107,7 @@ export default function CheckoutPage({ cart }) {
 
                 {!isStockValid && (
                   <div className="mt-4 p-3 bg-red-100 border-l-4 border-red-500 text-red-700 rounded">
-                    ⚠️ Ada produk yang jumlahnya melebihi stok tersedia. Silakan kurangi jumlah di keranjang.
+                    ⚠️ Ada produk yang jumlahnya melebihi stok tersedia. Silakan kembali ke keranjang untuk mengedit.
                   </div>
                 )}
               </CardContent>
@@ -129,7 +130,7 @@ export default function CheckoutPage({ cart }) {
                         onChange={() => setSelectedAddress(addr)}
                         className="mr-3"
                       />
-                      <label htmlFor={`addr-${index}`}>{addr}</label>
+                      <label htmlFor={`addr-${index}`} className="text-gray-700">{addr}</label>
                     </div>
                   ))}
                   <Button 
@@ -160,7 +161,7 @@ export default function CheckoutPage({ cart }) {
                         onChange={() => setSelectedPayment(method.id)}
                         className="mr-3"
                       />
-                      <label htmlFor={method.id}>{method.name}</label>
+                      <label htmlFor={method.id} className="text-gray-700">{method.name}</label>
                     </div>
                   ))}
                 </div>
@@ -168,9 +169,9 @@ export default function CheckoutPage({ cart }) {
             </Card>
           </div>
 
-          {/* Kolom Kanan: Google Maps + Ringkasan */}
+          {/* Kolom Kanan: Maps & Ringkasan */}
           <div className="space-y-6">
-            {/* Google Maps (Placeholder) */}
+            {/* Google Maps */}
             <Card>
               <CardHeader>
                 <CardTitle>🗺️ Lokasi Pengiriman</CardTitle>
@@ -193,7 +194,7 @@ export default function CheckoutPage({ cart }) {
               <CardContent>
                 <div className="space-y-2 mb-4">
                   {cart.map(item => (
-                    <div key={item.id} className="flex justify-between">
+                    <div key={item.id} className="flex justify-between text-gray-700">
                       <span>{item.name} × {item.quantity}</span>
                       <span>Rp {(item.price * item.quantity).toLocaleString()}</span>
                     </div>
@@ -206,8 +207,12 @@ export default function CheckoutPage({ cart }) {
 
                 <Button 
                   onClick={handleSubmit}
-                  disabled={!isStockValid}
-                  className={`w-full mt-4 ${isStockValid ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-400 cursor-not-allowed'} text-white`}
+                  disabled={!isStockValid || !selectedAddress || !selectedPayment}
+                  className={`w-full mt-4 ${
+                    isStockValid && selectedAddress && selectedPayment 
+                      ? 'bg-green-600 hover:bg-green-700' 
+                      : 'bg-gray-400 cursor-not-allowed'
+                  } text-white`}
                 >
                   Konfirmasi Pesanan
                 </Button>

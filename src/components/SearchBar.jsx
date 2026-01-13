@@ -1,13 +1,14 @@
 // src/components/public/SearchBar.jsx
 import { useState } from "react";
-import { Button } from "@/ui/button";
+import { Button } from "@/components/ui/button"; 
 
-export default function SearchBar() {
+export default function SearchBar({ onSearch }) {
   const [searchTerm, setSearchTerm] = useState("");
 
   const handleSearch = () => {
     if (searchTerm.trim()) {
-      alert(`Mencari: "${searchTerm}"`);
+      onSearch && onSearch(searchTerm); 
+      setSearchTerm("");
     }
   };
 
@@ -34,7 +35,7 @@ export default function SearchBar() {
         className="border-y border-r border-gray-300 px-3 py-2 w-full md:w-64 lg:w-80 focus:outline-none"
       />
 
-      
+      {/* Tombol Cari */}
       <Button 
         onClick={handleSearch}
         variant="default" 

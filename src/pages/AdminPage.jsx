@@ -1,162 +1,321 @@
 // src/pages/AdminPage.jsx
-import { useState } from "react";
-import { Button } from "@/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/ui/card";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom"; 
 
-import product1Img from "@/assets/images/product1.jpg";
-import product2Img from "@/assets/images/product2.jpg";
-import product3Img from "@/assets/images/product3.jpg";
-import product4Img from "@/assets/images/usb-c.jpg";
-import product5Img from "@/assets/images/product5.jpg";
-import product6Img from "@/assets/images/product6.jpg";
+// shadcn/ui imports
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+// Hook untuk integrasi MockAPI
+import { useProducts } from "@/hooks/useProducts";
 
 export default function AdminPage() {
-  const [products, setProducts] = useState([
-    { id: 1, name: "Wireless Headphones", price: 299000, image: product1Img, stock: 50 },
-    { id: 2, name: "Smart Watch", price: 899000, image: product2Img, stock: 30 },
-    { id: 3, name: "Bluetooth Speaker", price: 159000, image: product3Img, stock: 40 },
-    { id: 4, name: "USB-C Fast Charger", price: 199000, image: product4Img, stock: 25 },
-    { id: 5, name: "Power Bank 20.000mAh", price: 349000, image: product5Img, stock: 20 },
-    { id: 6, name: "True Wireless Earbuds", price: 249000, image: product6Img, stock: 60 },
-  ]);
+  const location = useLocation();
 
+  // Tentukan tab aktif berdasarkan URL
+  const getActivePage = () => {
+    if (location.pathname === "/admin/live") return "live";
+    if (location.pathname === "/admin/add") return "add";
+    if (location.pathname === "/admin/products") return "products";
+    return "dashboard";
+  };
+
+  const [activePage, setActivePage] = useState(getActivePage());
   const [newProduct, setNewProduct] = useState({
     name: "",
     price: "",
     stock: "",
-    image: "",
+    description: "",
   });
 
+  const { products, loading, error, addProduct, deleteProduct } = useProducts();
+
+  
+  useEffect(() => {
+    setActivePage(getActivePage());
+  }, [location.pathname]);
+
+  
   const handleAddProduct = () => {
     if (!newProduct.name || !newProduct.price || !newProduct.stock) {
-      alert("Semua data wajib diisi");
+      alert("Nama, harga, dan stok wajib diisi!");
       return;
     }
 
-    setProducts([
-      ...products,
-      {
-        id: Date.now(),
-        name: newProduct.name,
-        price: parseInt(newProduct.price),
-        stock: parseInt(newProduct.stock),
-        image: product1Img, // صورة افتراضية
-      },
-    ]);
+    const newItem = {
+      name: newProduct.name,
+      price: Number(newProduct.price),
+      stock: Number(newProduct.stock),
+      description: newProduct.description || "No description",
+      image: "/images/product1.jpg",
+    };
 
-    setNewProduct({ name: "", price: "", stock: "", image: "" });
+    addProduct(newItem);
+    setNewProduct({ name: "", price: "", stock: "", description: "" });
   };
 
-  const handleDelete = (id) => {
-    setProducts(products.filter((p) => p.id !== id));
+  // Handle hapus produk
+  const handleDeleteProduct = (id) => {
+    if (window.confirm("Yakin ingin menghapus produk ini?")) {
+      deleteProduct(id);
+    }
   };
 
-  return (
-    <div className="min-h-screen bg-slate-100">
-      {/* Header */}
-      <header className="bg-slate-800 text-white shadow">
-        <div className="container mx-auto flex justify-between items-center p-4">
-          <h1 className="text-xl font-semibold">Admin Dashboard</h1>
-          <div className="flex gap-3">
-            <Link to="/">
-              <Button className="bg-slate-600 hover:bg-slate-700">Kembali</Button>
-            </Link>
-            <Button className="bg-rose-600 hover:bg-rose-700">Logout</Button>
-          </div>
-        </div>
-      </header>
+  // Handle mulai live
+  const handleStartLive = () => {
+    alert("🎥 Live Jualan Dimulai!\nSilakan siapkan produk dan promosi.");
+  };
 
-      <main className="container mx-auto p-6 space-y-6">
-        {/* Tambah Produk */}
-        <Card>
+  
+  if (loading) {
+    return (
+      <div className="p-6 flex items-center justify-center min-h-screen">
+        <p className="text-lg">Loading data admin...</p>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="p-6 flex items-center justify-center min-h-screen">
+        <p className="text-red-500 text-lg">Error: {error}</p>
+      </div>
+    );
+  }
+
+
+  const renderContent = () => {
+    if (activePage === "live") {
+      return (
+        <Card className="shadow-lg border-l-4 border-red-500">
           <CardHeader>
-            <CardTitle>Tambah Produk</CardTitle>
+            <CardTitle className="text-xl text-red-600">🎥 Mulai Live Jualan</CardTitle>
           </CardHeader>
-          <CardContent className="grid md:grid-cols-3 gap-4">
-            <input
-              type="text"
-              placeholder="Nama Produk"
-              value={newProduct.name}
-              onChange={(e) =>
-                setNewProduct({ ...newProduct, name: e.target.value })
-              }
-              className="border rounded px-3 py-2"
-            />
-            <input
-              type="number"
-              placeholder="Harga"
-              value={newProduct.price}
-              onChange={(e) =>
-                setNewProduct({ ...newProduct, price: e.target.value })
-              }
-              className="border rounded px-3 py-2"
-            />
-            <input
-              type="number"
-              placeholder="Stok"
-              value={newProduct.stock}
-              onChange={(e) =>
-                setNewProduct({ ...newProduct, stock: e.target.value })
-              }
-              className="border rounded px-3 py-2"
-            />
+          <CardContent className="space-y-4">
+            <div>
+              <Label className="text-gray-700">Judul Live</Label>
+              <Input placeholder="Diskon Besar Hari Ini!" className="mt-1" />
+            </div>
+            <div>
+              <Label className="text-gray-700">Pilih Produk</Label>
+              <select className="w-full p-2 border rounded mt-1">
+                {products.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
+                ))}
+              </select>
+            </div>
             <Button
-              onClick={handleAddProduct}
-              className="md:col-span-3 bg-emerald-600 hover:bg-emerald-700"
+              className="w-full bg-red-600 hover:bg-red-700 text-white mt-2"
+              onClick={handleStartLive}
             >
-              Simpan Produk
+              🎥 Mulai Live Sekarang
             </Button>
           </CardContent>
         </Card>
+      );
+    }
 
-        {/* Daftar Produk */}
-        <Card>
+    if (activePage === "add") {
+      return (
+        <Card className="shadow-lg border-l-4 border-green-500">
           <CardHeader>
-            <CardTitle>Daftar Produk</CardTitle>
+            <CardTitle className="text-xl text-green-600">➕ Tambah Produk Baru</CardTitle>
           </CardHeader>
-          <CardContent>
-            <table className="w-full text-sm">
-              <thead className="bg-slate-200">
-                <tr>
-                  <th className="p-2">Gambar</th>
-                  <th className="p-2 text-left">Nama</th>
-                  <th className="p-2">Harga</th>
-                  <th className="p-2">Stok</th>
-                  <th className="p-2">Aksi</th>
-                </tr>
-              </thead>
-              <tbody>
-                {products.map((p) => (
-                  <tr key={p.id} className="border-b">
-                    <td className="p-2 text-center">
-                      <img
-                        src={p.image}
-                        alt={p.name}
-                        className="w-12 h-12 object-cover rounded mx-auto"
-                      />
-                    </td>
-                    <td className="p-2">{p.name}</td>
-                    <td className="p-2 text-center">
-                      Rp {p.price.toLocaleString()}
-                    </td>
-                    <td className="p-2 text-center">{p.stock}</td>
-                    <td className="p-2 text-center">
-                      <Button
-                        size="sm"
-                        className="bg-rose-500 hover:bg-rose-600"
-                        onClick={() => handleDelete(p.id)}
-                      >
-                        Hapus
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <CardContent className="space-y-4">
+            <div>
+              <Label className="text-gray-700">Nama Produk</Label>
+              <Input
+                value={newProduct.name}
+                onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+                placeholder="Wireless Headphones"
+              />
+            </div>
+            <div>
+              <Label className="text-gray-700">Harga (Rp)</Label>
+              <Input
+                type="number"
+                value={newProduct.price}
+                onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
+                placeholder="299000"
+              />
+            </div>
+            <div>
+              <Label className="text-gray-700">Stok</Label>
+              <Input
+                type="number"
+                value={newProduct.stock}
+                onChange={(e) => setNewProduct({ ...newProduct, stock: e.target.value })}
+                placeholder="100"
+              />
+            </div>
+            <div>
+              <Label className="text-gray-700">Deskripsi</Label>
+              <Textarea
+                value={newProduct.description}
+                onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
+                placeholder="Kualitas suara tinggi dengan noise cancellation."
+                className="min-h-[100px]"
+              />
+            </div>
+            <Button
+              onClick={handleAddProduct}
+              className="bg-green-600 hover:bg-green-700 text-white mt-2"
+            >
+              Tambah Produk
+            </Button>
           </CardContent>
         </Card>
-      </main>
+      );
+    }
+
+    if (activePage === "products") {
+      return (
+        <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle className="text-xl">📦 Daftar Produk (Real-Time)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-gray-100">
+                    <TableHead>Gambar</TableHead>
+                    <TableHead>Nama</TableHead>
+                    <TableHead>Harga</TableHead>
+                    <TableHead>Stok</TableHead>
+                    <TableHead>Aksi</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {products.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center py-4">
+                        Tidak ada produk.
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    products.map((p) => (
+                      <TableRow key={p.id} className="hover:bg-gray-50">
+                        <TableCell>
+                          <img
+                            src={p.image}
+                            alt={p.name}
+                            className="w-10 h-10 object-cover rounded"
+                            onError={(e) => {
+                              e.currentTarget.src = "/images/placeholder.jpg";
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell className="font-medium">{p.name}</TableCell>
+                        <TableCell>Rp {p.price.toLocaleString()}</TableCell>
+                        <TableCell className={p.stock <= 5 ? "text-red-600 font-bold" : ""}>
+                          {p.stock}
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => handleDeleteProduct(p.id)}
+                            className="text-xs px-2 py-1"
+                          >
+                            Hapus
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
+
+  
+    return (
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg">
+            <CardHeader>
+              <CardTitle>Total Produk</CardTitle>
+            </CardHeader>
+            <CardContent className="text-3xl font-bold">{products.length}</CardContent>
+          </Card>
+          <Card className="bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg">
+            <CardHeader>
+              <CardTitle>Stok Total</CardTitle>
+            </CardHeader>
+            <CardContent className="text-3xl font-bold">
+              {products.reduce((a, b) => a + b.stock, 0)}
+            </CardContent>
+          </Card>
+          <Card className="bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg">
+            <CardHeader>
+              <CardTitle>Status</CardTitle>
+            </CardHeader>
+            <CardContent className="text-xl font-bold">Aktif ✅</CardContent>
+          </Card>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle>🎥 Mulai Live Cepat</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Button
+                className="w-full bg-red-600 hover:bg-red-700 text-white"
+                onClick={handleStartLive}
+              >
+                Mulai Live Sekarang
+              </Button>
+            </CardContent>
+          </Card>
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle>➕ Tambah Produk Cepat</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Button
+                onClick={() => setActivePage("add")}
+                className="w-full bg-green-600 hover:bg-green-700 text-white"
+              >
+                Tambah Produk
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="p-6 max-w-7xl mx-auto">
+      <header className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-800">
+          {activePage === "dashboard" && "Dashboard Admin"}
+          {activePage === "live" && "🎥 Live Jualan"}
+          {activePage === "add" && "➕ Tambah Produk"}
+          {activePage === "products" && "📦 Manajemen Produk"}
+        </h1>
+      </header>
+
+      {renderContent()}
     </div>
   );
 }

@@ -1,67 +1,70 @@
 // src/pages/LoginPage.jsx
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom"; 
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 
-export default function LoginPage() {
+export default function LoginPage({ onLogin }) {
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setError("");
+
+    if (!email.trim()) {
+      setError("Email tidak boleh kosong");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError("Masukkan email yang valid");
+      return;
+    }
+
+    onLogin(email);
+    navigate("/");
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 relative">
-      {/* Background Blur */}
-      <div className="absolute inset-0 bg-white opacity-70"></div>
-      
-      {/* Salju jatuh */}
-      <div className="snowflakes absolute inset-0 pointer-events-none">
-        <div className="snowflake">❄</div>
-        <div className="snowflake">❄</div>
-        <div className="snowflake">❄</div>
-        <div className="snowflake">❄</div>
-        <div className="snowflake">❄</div>
-        <div className="snowflake">❄</div>
-        <div className="snowflake">❄</div>
-      </div>
-
-     
-      <div className="flex items-center gap-8 max-w-4xl w-full px-6">
-        
-        
-        <div className="w-1/3 flex justify-center">
-          <img 
-            src="src/assets/images/santaclaus.jpg" 
-            alt="santaclauus"
-            className="w-full max-w-[200px] h-auto object-contain"
-          />
-        </div>
-
-        {/* Card Login - Di sisi kanan */}
-        <div className="relative z-10 w-2/3 max-w-md p-8 rounded-xl shadow-lg bg-white/90 backdrop-blur-sm">
-          <h1 className="text-3xl font-bold text-gray-800 mb-6">Log into your account</h1>
-          
-          <input 
-            type="text" 
-            placeholder="Username" 
-            className="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-          />
-          
-          <input 
-            type="password" 
-            placeholder="Password" 
-            className="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-          />
-          
-          <Link 
-            to="/" 
-            className="block w-full py-3 bg-pink-500 text-white text-center rounded-lg hover:bg-pink-600 transition"
-          >
-            LOG IN
-          </Link>
-          
-          <div className="mt-4 text-center text-sm text-gray-600">
-            <a href="#" className="text-pink-500 hover:underline">Forgot your password?</a>
-          </div>
-          
-          <div className="mt-6 text-center text-sm text-gray-600">
-            If you don't have an account, <Link to="/register" className="text-pink-500 hover:underline">sign up.</Link>
-          </div>
-        </div>
-      </div>
+    <div className="flex items-center justify-center min-h-screen bg-gray-50 p-4">
+      <Card className="w-full max-w-sm">
+        <CardHeader>
+          <CardTitle>Login</CardTitle>
+          <CardDescription>Masukkan email untuk masuk.</CardDescription>
+        </CardHeader>
+        <form onSubmit={handleSubmit}>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="contoh@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className={error ? "border-red-500" : ""}
+              />
+              {error && <p className="text-sm text-red-600">{error}</p>}
+            </div>
+          </CardContent>
+          <CardFooter className="flex flex-col gap-3">
+            <Button type="submit" className="w-full">
+              Login
+            </Button>
+            <p className="text-sm text-center text-gray-600">
+              Belum punya akun?{" "}
+              <Link to="/register" className="text-blue-600 hover:underline font-medium">
+                Daftar di sini
+              </Link>
+            </p>
+          </CardFooter>
+        </form>
+      </Card>
     </div>
-  ); 
-} 
+  );
+}
