@@ -1,7 +1,7 @@
 // src/hooks/useProducts.js
 import { useState, useEffect, useCallback } from "react";
 
-// Ganti dengan endpoint milikmu
+
 const API_URL = "https://695e732d2556fd22f6787ecb.mockapi.io/api/v1/products";
 
 export const useProducts = () => {
@@ -33,7 +33,7 @@ export const useProducts = () => {
         body: JSON.stringify(newProduct),
       });
       if (!res.ok) throw new Error("Gagal menambah produk");
-      fetchProducts(); // ✅ Auto-refresh
+      fetchProducts(); 
     } catch (err) {
       alert("Gagal menambah produk: " + err.message);
     }
@@ -46,7 +46,7 @@ export const useProducts = () => {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Gagal menghapus produk");
-      fetchProducts(); // ✅ Auto-refresh
+      fetchProducts(); 
     } catch (err) {
       alert("Gagal menghapus produk: " + err.message);
     }
