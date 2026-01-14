@@ -23,7 +23,6 @@ import { useProducts } from "@/hooks/useProducts";
 export default function AdminPage() {
   const location = useLocation();
 
-  // Tentukan tab aktif berdasarkan URL
   const getActivePage = () => {
     if (location.pathname === "/admin/live") return "live";
     if (location.pathname === "/admin/add") return "add";
@@ -41,43 +40,66 @@ export default function AdminPage() {
 
   const { products, loading, error, addProduct, deleteProduct } = useProducts();
 
-  
   useEffect(() => {
     setActivePage(getActivePage());
   }, [location.pathname]);
 
-  
+  // Tambah atau Update Produk
   const handleAddProduct = () => {
     if (!newProduct.name || !newProduct.price || !newProduct.stock) {
       alert("Nama, harga, dan stok wajib diisi!");
       return;
     }
 
-    const newItem = {
-      name: newProduct.name,
-      price: Number(newProduct.price),
-      stock: Number(newProduct.stock),
-      description: newProduct.description || "No description",
-      image: "/images/product1.jpg",
-    };
+    // Cek apakah produk sudah ada (untuk edit)
+    const existing = products.find(p => p.name === newProduct.name);
+    if (existing) {
+      existing.price = Number(newProduct.price);
+      existing.stock = Number(newProduct.stock);
+      existing.description = newProduct.description || "No description";
+      alert("Produk berhasil diperbarui!");
+    } else {
+      const newItem = {
+        name: newProduct.name,
+        price: Number(newProduct.price),
+        stock: Number(newProduct.stock),
+        description: newProduct.description || "No description",
+        image: "/images/product1.jpg",
+      };
+      addProduct(newItem);
+      alert("Produk berhasil ditambahkan!");
+    }
 
-    addProduct(newItem);
     setNewProduct({ name: "", price: "", stock: "", description: "" });
   };
 
-  // Handle hapus produk
+  // Hapus Produk
   const handleDeleteProduct = (id) => {
     if (window.confirm("Yakin ingin menghapus produk ini?")) {
       deleteProduct(id);
     }
   };
 
-  // Handle mulai live
+  // Edit Produk
+  const handleEditProduct = (id) => {
+    const product = products.find((p) => p.id === id);
+    if (product) {
+      setNewProduct({
+        name: product.name,
+        price: product.price,
+        stock: product.stock,
+        description: product.description,
+      });
+      setActivePage("add");
+    }
+  };
+
+  // Mulai Live
   const handleStartLive = () => {
     alert("🎥 Live Jualan Dimulai!\nSilakan siapkan produk dan promosi.");
   };
 
-  
+  // Loading
   if (loading) {
     return (
       <div className="p-6 flex items-center justify-center min-h-screen">
@@ -86,7 +108,7 @@ export default function AdminPage() {
     );
   }
 
-  // Error state
+  // Error
   if (error) {
     return (
       <div className="p-6 flex items-center justify-center min-h-screen">
@@ -94,7 +116,6 @@ export default function AdminPage() {
       </div>
     );
   }
-
 
   const renderContent = () => {
     if (activePage === "live") {
@@ -225,7 +246,17 @@ export default function AdminPage() {
                         <TableCell className={p.stock <= 5 ? "text-red-600 font-bold" : ""}>
                           {p.stock}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="flex gap-1">
+                          {/* Tombol Edit hijau */}
+                          <Button
+                            size="sm"
+                            className="text-xs px-2 py-1 bg-green-600 hover:bg-green-700 text-white"
+                            onClick={() => handleEditProduct(p.id)}
+                          >
+                            Edit
+                          </Button>
+
+                          {/* Tombol Hapus */}
                           <Button
                             size="sm"
                             variant="destructive"
@@ -246,7 +277,7 @@ export default function AdminPage() {
       );
     }
 
-  
+    // Dashboard default
     return (
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
